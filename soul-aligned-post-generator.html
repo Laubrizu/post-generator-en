@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soul-Aligned Pinned Post Generator · Prosperity Pact</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,600;0,700;0,900;1,400;1,700&family=Berkshire+Swash&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #f42ba6;
+  --lime: #c1ff72;
+  --teal: #2cb8b0;
+  --ink: #080808;
+  --off-white: #f7f3ee;
+  --warm-gray: #ede9e3;
+  --muted: #8c8580;
+  --text: #1a1a1a;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body { background: var(--off-white); color: var(--text); font-family: 'Poppins', sans-serif; }
+
+/* ── HERO ── */
+.hero {
+  background: var(--ink);
+  padding: 64px 24px 72px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 15% 60%, rgba(244,43,166,0.22) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, rgba(44,184,176,0.16) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(193,255,114,0.1) 0%, transparent 45%);
+}
+.hero-body { position: relative; z-index: 2; max-width: 600px; margin: 0 auto; }
+
+.pp-wordmark {
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none; margin-bottom: 28px;
+  opacity: 0.9; transition: opacity .2s;
+}
+.pp-wordmark:hover { opacity: 1; }
+.pp-wordmark-text {
+  font-family: 'Berkshire Swash', cursive;
+  font-size: 22px; color: var(--pink);
+  letter-spacing: 0.5px;
+}
+.pp-wordmark-arrow { font-size: 13px; color: var(--pink); opacity: 0.6; }
+
+.hero h1 {
+  font-size: clamp(36px, 7vw, 58px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -1.5px;
+  color: #fff;
+  margin-bottom: 18px;
+}
+.hero h1 em { font-style: italic; font-weight: 700; color: rgba(255,255,255,0.5); }
+.hero h1 .pk { color: var(--pink); font-style: normal; }
+.hero h1 .lm { color: var(--lime); font-style: normal; }
+
+.hero-sub {
+  font-size: 16px; line-height: 1.7;
+  color: rgba(255,255,255,0.45);
+  max-width: 440px; margin: 0 auto 32px;
+}
+
+.hero-join {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--pink); color: #fff;
+  text-decoration: none; padding: 14px 28px;
+  border-radius: 50px; font-size: 15px; font-weight: 700;
+  transition: all .2s; letter-spacing: 0.2px;
+}
+.hero-join:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(244,43,166,0.4); }
+
+/* ── PROGRESS STRIP ── */
+.progress {
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex; justify-content: center;
+}
+.prog-items { display: flex; }
+.prog-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 28px; font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.25); cursor: pointer;
+  border-bottom: 2px solid transparent; transition: all .2s;
+  white-space: nowrap;
+}
+.prog-item:hover { color: rgba(255,255,255,0.55); }
+.prog-item.active { color: var(--pink); border-bottom-color: var(--pink); }
+.prog-item.done { color: var(--teal); border-bottom-color: var(--teal); }
+.prog-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+  transition: background .2s;
+}
+.prog-item.active .prog-num { background: var(--pink); color: #fff; }
+.prog-item.done .prog-num { background: var(--teal); color: #fff; }
+
+/* ── FORM AREA ── */
+.form-area { max-width: 640px; margin: 0 auto; padding: 48px 24px 80px; }
+
+.panel { display: none; }
+.panel.active { display: block; animation: rise .3s ease; }
+@keyframes rise { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.panel-head { margin-bottom: 36px; }
+.panel-head h2 { font-size: 28px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 6px; }
+.panel-head p { font-size: 15px; color: var(--muted); line-height: 1.65; }
+
+/* FIELDS */
+.field { margin-bottom: 20px; }
+.field label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(0,0,0,0.35); margin-bottom: 8px;
+}
+.opt-badge {
+  background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.35);
+  font-size: 9px; padding: 2px 7px; border-radius: 4px;
+  letter-spacing: 0.5px; font-weight: 600;
+}
+
+.field input[type=text],
+.field input[type=password],
+.field textarea,
+.field select {
+  width: 100%;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(0,0,0,0.09);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px; color: var(--text);
+  transition: border-color .18s, background .18s, box-shadow .18s;
+  -webkit-appearance: none;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--pink);
+  box-shadow: 0 0 0 3px rgba(244,43,166,0.07);
+}
+.field input::placeholder,
+.field textarea::placeholder { color: rgba(0,0,0,0.2); }
+.field textarea { resize: vertical; min-height: 110px; line-height: 1.65; }
+.field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 42px;
+}
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media(max-width:500px){ .field-row { grid-template-columns:1fr; } }
+
+/* LOGO UPLOAD */
+.logo-zone {
+  border: 1.5px dashed rgba(0,0,0,0.14);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.5);
+  position: relative;
+  transition: all .2s;
+}
+.logo-zone:hover { border-color: var(--pink); background: rgba(244,43,166,0.02); }
+.logo-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.logo-zone .ico { font-size: 28px; margin-bottom: 8px; }
+.logo-zone p { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+.logo-zone small { font-size: 11px; color: rgba(0,0,0,0.25); }
+.logo-preview-img {
+  max-width: 100px; max-height: 70px;
+  display: none; margin: 0 auto 10px;
+  border-radius: 6px;
+}
+
+/* COLOR PICKERS */
+.color-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.color-item {
+  flex: 1; min-width: 130px;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.6);
+  border: 1.5px solid rgba(0,0,0,0.09);
+  border-radius: 12px; padding: 10px 14px;
+}
+.color-item input[type=color] {
+  width: 34px; height: 34px;
+  border-radius: 8px; border: none;
+  cursor: pointer; padding: 0; background: none; flex-shrink: 0;
+}
+.color-item input[type=text] {
+  border: none; padding: 0; background: none;
+  font-size: 13px; color: var(--muted); width: 76px;
+  box-shadow: none !important;
+}
+
+/* DIVIDER */
+.div { border: none; border-top: 1px solid rgba(0,0,0,0.07); margin: 28px 0; }
+
+/* NOTE BOX */
+.note {
+  background: rgba(44,184,176,0.07);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  font-size: 13px; color: var(--muted);
+  line-height: 1.7; margin-bottom: 24px;
+}
+.note strong { color: var(--teal); }
+.note a { color: var(--teal); }
+
+/* BUTTONS */
+.btn-row { display: flex; gap: 12px; margin-top: 32px; }
+.btn {
+  padding: 15px 28px; border-radius: 50px;
+  font-family: 'Poppins', sans-serif; font-size: 15px; font-weight: 700;
+  border: none; cursor: pointer; transition: all .2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-go { background: var(--pink); color: #fff; flex: 1; }
+.btn-go:hover { opacity: .9; transform: translateY(-1px); }
+.btn-go:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+.btn-back { background: rgba(0,0,0,0.06); color: var(--muted); }
+.btn-back:hover { background: rgba(0,0,0,0.1); color: var(--text); }
+.btn-gen {
+  flex: 1; background: var(--ink); color: #fff;
+  font-size: 16px; padding: 17px 32px;
+}
+.btn-gen:hover { background: #1a1a1a; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
+.btn-gen:disabled { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.api-note { font-size: 12px; color: rgba(0,0,0,0.3); margin-top: 7px; line-height: 1.6; }
+.api-note a { color: var(--teal); }
+.api-st { font-size: 12px; margin-top: 6px; font-weight: 600; }
+.api-st.ok { color: var(--teal); }
+.api-st.err { color: #d44; }
+
+/* ── GENERATING ── */
+.generating { display: none; text-align: center; padding: 80px 20px; }
+.generating.active { display: block; animation: rise .3s ease; }
+.gen-ring {
+  width: 50px; height: 50px;
+  border: 3px solid rgba(244,43,166,0.12);
+  border-top: 3px solid var(--pink);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 24px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.gen-sub { font-size: 14px; color: var(--muted); }
+
+/* ── RESULTS ── */
+.results { display: none; }
+.results.active { display: block; animation: rise .3s ease; }
+.res-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
+.res-top h2 { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+.pin-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+.pin-tab {
+  padding: 8px 18px; border-radius: 50px; font-size: 13px; font-weight: 700;
+  cursor: pointer; background: rgba(0,0,0,0.05); color: var(--muted);
+  border: 1.5px solid transparent; transition: all .2s;
+  font-family: 'Poppins', sans-serif;
+}
+.pin-tab.active { background: var(--ink); color: #fff; }
+.pin-tab:hover:not(.active) { border-color: rgba(0,0,0,0.15); color: var(--text); }
+
+/* CAROUSEL */
+.car-shell {
+  background: var(--ink); border-radius: 20px;
+  overflow: hidden; margin-bottom: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+}
+.slides { min-height: 340px; }
+.slide {
+  display: none; padding: 44px 40px; min-height: 340px;
+  flex-direction: column; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.slide.active { display: flex; animation: rise .2s ease; }
+.slide-n { position: absolute; top: 18px; right: 20px; font-size: 11px; color: rgba(255,255,255,0.22); letter-spacing: 1px; }
+.slide-tag { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 14px; font-weight: 600; }
+.slide-title { font-size: clamp(22px,3.5vw,30px); font-weight: 900; line-height: 1.1; margin-bottom: 14px; color: #fff; letter-spacing: -0.5px; }
+.slide-body { font-size: 15px; line-height: 1.75; color: rgba(255,255,255,0.58); }
+.slide-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.slide-body ul li::before { content: "✦  "; color: var(--pink); }
+.slide-cta-wrap { margin-top: 20px; }
+.slide-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--pink); color: #fff;
+  padding: 10px 22px; border-radius: 50px;
+  font-size: 13px; font-weight: 700; width: fit-content;
+}
+.slide-logo { max-height: 36px; margin-bottom: 18px; display: block; }
+
+/* Slide color variants */
+.s-dark { background: #050505; }
+.s-pink { background: var(--pink); }
+.s-pink .slide-title,.s-pink .slide-tag { color: rgba(255,255,255,0.9); }
+.s-pink .slide-body { color: rgba(255,255,255,0.82); }
+.s-pink .slide-cta { background: #fff; color: var(--pink); }
+.s-teal { background: linear-gradient(145deg,#040f0f,#071c1c); }
+.s-purple { background: linear-gradient(145deg,#07060e,#0f0b1c); }
+.s-warm {
+  background: #f7f3ee;
+}
+.s-warm .slide-title { color: var(--ink); }
+.s-warm .slide-body { color: var(--muted); }
+.s-warm .slide-tag { color: rgba(0,0,0,0.3); }
+.s-warm .slide-n { color: rgba(0,0,0,0.15); }
+
+/* Carousel nav */
+.car-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 20px 15px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+}
+.dots { display: flex; gap: 5px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.18); cursor: pointer; transition: all .2s; }
+.dot.active { background: var(--pink); width: 18px; border-radius: 3px; }
+.nav-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  padding: 7px 16px; border-radius: 8px;
+  font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.nav-btn:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-btn:disabled { opacity: .28; cursor: not-allowed; }
+
+/* CAPTIONS */
+.cap-card {
+  background: #fff; border-radius: 14px;
+  border: 1.5px solid rgba(0,0,0,0.07);
+  padding: 22px 24px; margin-bottom: 14px;
+}
+.cap-lbl { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(0,0,0,0.3); font-weight: 700; margin-bottom: 12px; }
+.cap-txt { font-size: 14px; line-height: 1.8; color: var(--text); white-space: pre-wrap; }
+.copy-btn {
+  background: var(--warm-gray); border: 1.5px solid rgba(0,0,0,0.08);
+  color: var(--muted); padding: 8px 16px; border-radius: 8px;
+  font-family: 'Poppins', sans-serif; font-size: 12px; font-weight: 700;
+  cursor: pointer; transition: all .2s; margin-top: 12px;
+}
+.copy-btn:hover { border-color: rgba(0,0,0,0.2); color: var(--text); }
+.copy-btn.copied { color: var(--teal); border-color: var(--teal); background: rgba(44,184,176,0.06); }
+
+/* ── FOOTER CTA BAND ── */
+.join-band {
+  background: var(--ink);
+  padding: 60px 24px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.join-band::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(244,43,166,0.14) 0%, transparent 60%);
+}
+.join-band-inner { position: relative; z-index: 2; }
+.join-band h2 {
+  font-family: 'Berkshire Swash', cursive;
+  font-size: clamp(26px, 5vw, 38px);
+  color: #fff; margin-bottom: 10px;
+}
+.join-band h2 span { color: var(--pink); }
+.join-band p { font-size: 15px; color: rgba(255,255,255,0.4); margin-bottom: 28px; max-width: 380px; margin-left: auto; margin-right: auto; line-height: 1.65; }
+.join-band a {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--pink); color: #fff;
+  text-decoration: none; padding: 15px 32px;
+  border-radius: 50px; font-size: 15px; font-weight: 700;
+  transition: all .2s;
+}
+.join-band a:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(244,43,166,0.4); }
+.join-band-sub { margin-top: 18px; font-size: 12px; color: rgba(255,255,255,0.22); }
+.join-band-sub a { color: rgba(255,255,255,0.4); text-decoration: none; }
+.join-band-sub a:hover { color: rgba(255,255,255,0.7); }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-body">
+    <a href="https://www.skool.com/prosperity-pact/about?sc=1t" target="_blank" class="pp-wordmark">
+      <span class="pp-wordmark-text">Prosperity Pact</span>
+      <span class="pp-wordmark-arrow">↗</span>
+    </a>
+    <h1>
+      Soul-Aligned<br>
+      <span class="pk">Pinned Post</span><br>
+      <em>Generator</em>
+    </h1>
+    <p class="hero-sub">Answer a few questions about your community. Get 3 fully designed carousel pinned posts, captions, and hashtags — ready in seconds. No prompts to copy. No extra steps.</p>
+    <a href="https://www.skool.com/prosperity-pact/about?sc=1t" target="_blank" class="hero-join">
+      ✨ Join Prosperity Pact Free
+    </a>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress">
+  <div class="prog-items">
+    <div class="prog-item active" onclick="goStep(1)" id="pi1">
+      <div class="prog-num">1</div>Your Brand
+    </div>
+    <div class="prog-item" onclick="goStep(2)" id="pi2">
+      <div class="prog-num">2</div>Your Story
+    </div>
+    <div class="prog-item" onclick="goStep(3)" id="pi3">
+      <div class="prog-num">3</div>Generate
+    </div>
+  </div>
+</div>
+
+<!-- FORM AREA -->
+<div class="form-area">
+
+  <!-- GENERATING -->
+  <div class="generating" id="genstate">
+    <div class="gen-ring"></div>
+    <div class="gen-title" id="gentext">Reading your story...</div>
+    <div class="gen-sub">Claude is crafting your carousels. Takes about 30-45 seconds.</div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="res-top">
+      <h2>Your 3 Pinned Posts ✨</h2>
+      <div class="pin-tabs" id="pintabs"></div>
+    </div>
+    <div id="carousels"></div>
+    <div id="captions"></div>
+    <div class="btn-row" style="margin-top:10px;">
+      <button class="btn btn-back" onclick="resetAll()">← Start over</button>
+      <button class="btn btn-go" onclick="copyAll()">📋 Copy all captions</button>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="panel active" id="panel1">
+    <div class="panel-head">
+      <h2>Your brand ✨</h2>
+      <p>This gets baked into every slide, caption, and hashtag. Two minutes here saves you hours.</p>
+    </div>
+
+    <div class="field">
+      <label>Logo <span class="opt-badge">optional</span></label>
+      <div class="logo-zone" id="logoZone">
+        <input type="file" accept="image/*" id="logoFile" onchange="handleLogo(this)">
+        <img id="logoImg" class="logo-preview-img">
+        <div id="logoPlaceholder">
+          <div class="ico">🖼</div>
+          <p>Click to upload your logo</p>
+          <small>PNG with transparent background works best</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Your name</label>
+        <input type="text" id="f_name" placeholder="e.g. Lau Brizuela">
+      </div>
+      <div class="field">
+        <label>Your title</label>
+        <input type="text" id="f_title" placeholder="e.g. Spiritual Business Mentor">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Who you serve</label>
+      <input type="text" id="f_audience" placeholder="e.g. Spiritual entrepreneurs 40+ who want to make money without selling their soul">
+    </div>
+
+    <div class="field">
+      <label>Community name & platform</label>
+      <input type="text" id="f_community" placeholder="e.g. Prosperity Pact on Skool — free to join, $11/month Premium">
+    </div>
+
+    <div class="field">
+      <label>Community link</label>
+      <input type="text" id="f_link" placeholder="e.g. https://www.skool.com/prosperity-pact/about?sc=1t">
+    </div>
+
+    <hr class="div">
+
+    <div class="field">
+      <label>Brand colors</label>
+      <div class="color-row">
+        <div class="color-item">
+          <input type="color" id="c1" value="#f42ba6" oninput="document.getElementById('c1t').value=this.value">
+          <input type="text" id="c1t" value="#f42ba6" placeholder="Primary" oninput="document.getElementById('c1').value=this.value">
+        </div>
+        <div class="color-item">
+          <input type="color" id="c2" value="#c1ff72" oninput="document.getElementById('c2t').value=this.value">
+          <input type="text" id="c2t" value="#c1ff72" placeholder="Accent" oninput="document.getElementById('c2').value=this.value">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Your tone</label>
+      <select id="f_vibe">
+        <option value="warm rebel — direct, honest, slightly sarcastic but always loving, spiritual without being airy-fairy, real talk">Warm rebel — direct, honest, slightly sarcastic but loving</option>
+        <option value="nurturing and gentle — soft, encouraging, holds space, deeply empathetic, poetic">Nurturing & gentle — soft, encouraging, empathetic</option>
+        <option value="bold and disruptive — provocative, counter-cultural, calls out the BS, energizing">Bold & disruptive — provocative, counter-cultural</option>
+        <option value="mystical and poetic — ethereal, magical, deeply spiritual, lyrical">Mystical & poetic — ethereal, magical, lyrical</option>
+        <option value="grounded and practical — real talk, action-oriented, zero fluff, results-driven">Grounded & practical — real talk, no fluff</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-go" onclick="goStep(2)">Continue → Your Story</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel" id="panel2">
+    <div class="panel-head">
+      <h2>Your story & offers 💫</h2>
+      <p>Answer in your own words. Raw and unpolished is better. The more you give Claude, the more specific and powerful your posts will be.</p>
+    </div>
+
+    <div class="note">
+      <strong>Shortcut:</strong> Record a 5-minute voice note answering these questions, drop it into <a href="https://otter.ai" target="_blank">Otter.ai</a> or any transcriber, paste the full transcript. You'll get better results than typing for 20 minutes.
+    </div>
+
+    <div class="field">
+      <label>Your origin story</label>
+      <textarea id="f_story" placeholder="What led you to this work? What did you figure out that changed everything? What does your life look like now because of it?"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Your client's biggest struggle</label>
+      <textarea id="f_struggle" placeholder="What keeps them stuck? What have they tried that didn't work? What do they secretly want to say but can't?"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Real client transformations</label>
+      <textarea id="f_results" placeholder="Share 2-4 real results. Name or initial, before state, after state, timeframe. Specific details are everything."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Your offers</label>
+      <textarea id="f_offers" placeholder="List everything: free community, paid tiers, 1:1 sessions, courses. Name, what's included, price, who it's for."></textarea>
+    </div>
+
+    <div class="field">
+      <label>Main call to action</label>
+      <input type="text" id="f_cta" placeholder="e.g. Join Prosperity Pact free at the link below">
+    </div>
+
+    <div class="field">
+      <label>Anything else to weave in <span class="opt-badge">optional</span></label>
+      <textarea id="f_extra" style="min-height:90px;" placeholder="Values, philosophy, what makes you different, a specific message you want to land..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-go" onclick="goStep(3)">Continue → Generate</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="panel" id="panel3">
+    <div class="panel-head">
+      <h2>Almost there 🌺</h2>
+      <p>Add your Claude API key and get your 3 pinned posts in about 30 seconds.</p>
+    </div>
+
+    <div class="note">
+      <strong>Get your API key:</strong> Go to <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com → API Keys</a>, create a new key with default settings. Starts with "sk-ant-". Your key is never stored or sent anywhere except directly to Anthropic.
+    </div>
+
+    <div class="field">
+      <label>Claude API Key</label>
+      <input type="password" id="f_key" placeholder="sk-ant-...">
+      <p class="api-note">Standard API usage applies — costs a few cents per generation. Key is not stored anywhere.</p>
+      <p class="api-st" id="apist"></p>
+    </div>
+
+    <div class="field">
+      <label>Language</label>
+      <select id="f_lang">
+        <option value="English">English</option>
+        <option value="Spanish (Español)">Spanish (Español)</option>
+        <option value="both English and Spanish (produce a full set in each language, clearly labeled)">Bilingual — English + Spanish</option>
+      </select>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-gen" id="genbtn" onclick="generate()">✨ Generate My 3 Pinned Posts</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER JOIN BAND -->
+<div class="join-band">
+  <div class="join-band-inner">
+    <h2><span>Prosperity Pact</span></h2>
+    <p>Where spiritual entrepreneurs attract soul clients, charge without guilt, and build wealth with integrity. No hustle. No high ticket. No selling your soul.</p>
+    <a href="https://www.skool.com/prosperity-pact/about?sc=1t" target="_blank">🦋 Join free — $11/month for Premium</a>
+    <p class="join-band-sub">Made with 💜 by <a href="https://laubrizuela.com" target="_blank">Lau Brizuela</a> · Spiritual Business & Rebel Manifestation Mentor</p>
+  </div>
+</div>
+
+<script>
+var step = 1, posts = [], curSlide = [0,0,0], logoUrl = null;
+
+function goStep(n) {
+  document.getElementById('panel'+step).classList.remove('active');
+  document.getElementById('pi'+step).classList.remove('active');
+  if(step < n) document.getElementById('pi'+step).classList.add('done');
+  step = n;
+  document.getElementById('panel'+n).classList.add('active');
+  document.getElementById('pi'+n).classList.add('active');
+  window.scrollTo({top: document.querySelector('.progress').offsetTop, behavior:'smooth'});
+}
+
+function handleLogo(inp) {
+  var f = inp.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    logoUrl = e.target.result;
+    var img = document.getElementById('logoImg');
+    img.src = logoUrl; img.style.display = 'block';
+    document.getElementById('logoPlaceholder').style.display = 'none';
+  };
+  r.readAsDataURL(f);
+}
+
+function g(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function buildPrompt() {
+  return 'Create 3 pinned post carousels for a Skool community creator. Return ONLY valid JSON, starting with { — no markdown, no preamble.\n\n'
+    +'CREATOR: '+g('f_name')+' | '+g('f_title')+'\n'
+    +'AUDIENCE: '+g('f_audience')+'\n'
+    +'COMMUNITY: '+g('f_community')+'\n'
+    +'LINK: '+g('f_link')+'\n'
+    +'COLORS: primary '+g('c1t')+', accent '+g('c2t')+'\n'
+    +'TONE: '+g('f_vibe')+'\n'
+    +'HAS LOGO IN SLIDES: '+(logoUrl ? 'yes, show on first slide only' : 'no')+'\n'
+    +'LANGUAGE: '+g('f_lang')+'\n\n'
+    +'ORIGIN STORY:\n'+g('f_story')+'\n\nCLIENT STRUGGLES:\n'+g('f_struggle')+'\n\nRESULTS:\n'+g('f_results')+'\n\nOFFERS:\n'+g('f_offers')+'\n\nCTA: '+g('f_cta')+'\n\nEXTRA: '+g('f_extra')+'\n\n'
+    +'JSON STRUCTURE:\n'
+    +'{"posts":[{"id":"connect","title":"Pin 1: Connect","emoji":"📌","slides":[{"tag":"short category","title":"headline — use [P]word[/P] for primary color and [L]word[/L] for accent color","body":"text or array of strings for bullet list","style":"dark|pink|teal|purple|warm"}],"caption":"200-300 word caption with emojis, in voice and language specified, ends with CTA and link","hashtags":"25 hashtags"},{"id":"compel","title":"Pin 2: Compel","emoji":"✨","slides":[...],"caption":"...","hashtags":"..."},{"id":"convert","title":"Pin 3: Convert","emoji":"💫","slides":[...],"caption":"...","hashtags":"..."}]}\n\n'
+    +'SLIDE RULES: 8-10 slides each. First = scroll-stopping hook. Last = clear CTA. Mix styles. Pin 1 = origin + who you serve + why follow. Pin 2 = social proof + real results. Pin 3 = every offer + CTA. Tone: '+g('f_vibe')+'. Language: '+g('f_lang')+'.';
+}
+
+async function generate() {
+  var key = g('f_key');
+  if(!key) { var s=document.getElementById('apist'); s.textContent='API key required.'; s.className='api-st err'; return; }
+  if(!g('f_name') || !g('f_story')) { alert('Please fill in at least your name and origin story first.'); return; }
+  document.getElementById('panel3').style.display = 'none';
+  document.getElementById('results').classList.remove('active');
+  var gs = document.getElementById('genstate'); gs.classList.add('active');
+  var msgs = ['Reading your story...','Crafting your origin carousel...','Writing social proof slides...','Building your offers carousel...','Polishing captions and hashtags...','Almost ready...'];
+  var mi = 0, tick = setInterval(function(){ mi=(mi+1)%msgs.length; document.getElementById('gentext').textContent=msgs[mi]; }, 5000);
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:4096,messages:[{role:'user',content:buildPrompt()}]})
+    });
+    if(!res.ok){ var e=await res.json(); throw new Error(e.error?.message||'API error '+res.status); }
+    var d = await res.json();
+    var raw = d.content[0].text.trim();
+    var s1=raw.indexOf('{'), s2=raw.lastIndexOf('}');
+    posts = JSON.parse(raw.substring(s1,s2+1)).posts;
+    clearInterval(tick); gs.classList.remove('active');
+    renderResults(posts);
+  } catch(err) {
+    clearInterval(tick); gs.classList.remove('active');
+    document.getElementById('panel3').style.display = 'block';
+    var st=document.getElementById('apist'); st.textContent='Error: '+err.message; st.className='api-st err';
+  }
+}
+
+function esc(t){ return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function col(text) {
+  if(!text) return '';
+  var c1=document.getElementById('c1').value||'#f42ba6';
+  var c2=document.getElementById('c2').value||'#c1ff72';
+  return esc(text)
+    .replace(/\[P\](.*?)\[\/P\]/g,'<span style="color:'+c1+'">$1</span>')
+    .replace(/\[L\](.*?)\[\/L\]/g,'<span style="color:'+c2+'">$1</span>');
+}
+
+function sCls(s) {
+  if(s==='pink') return 's-pink';
+  if(s==='teal') return 's-teal';
+  if(s==='purple') return 's-purple';
+  if(s==='warm') return 's-warm';
+  return 's-dark';
+}
+
+function renderResults(data) {
+  var tabs=document.getElementById('pintabs'), cars=document.getElementById('carousels'), caps=document.getElementById('captions');
+  tabs.innerHTML=''; cars.innerHTML=''; caps.innerHTML='';
+  data.forEach(function(post,pi) {
+    var tab=document.createElement('button');
+    tab.className='pin-tab'+(pi===0?' active':'');
+    tab.textContent=post.emoji+' '+(post.title||'Pin'+(pi+1)).replace(/Pin \d: /,'');
+    tab.id='tb'+pi;
+    (function(i){ tab.onclick=function(){ swPin(i); }; })(pi);
+    tabs.appendChild(tab);
+
+    var total=post.slides.length;
+    var carDiv=document.createElement('div');
+    carDiv.id='car'+pi; carDiv.style.display=pi===0?'block':'none';
+    var slidesH=post.slides.map(function(sl,si){
+      var bodyH='';
+      if(Array.isArray(sl.body)) bodyH='<ul>'+sl.body.map(function(b){return'<li>'+col(b)+'</li>';}).join('')+'</ul>';
+      else bodyH=col(sl.body||'').replace(/\n/g,'<br>');
+      var isCTA=si===total-1;
+      var logoH=logoUrl&&si===0?'<img src="'+logoUrl+'" class="slide-logo" alt="logo">':'';
+      return '<div class="slide '+sCls(sl.style||'dark')+(si===0?' active':'')+'" id="sl'+pi+'_'+si+'">'
+        +'<span class="slide-n">'+(si+1)+'/'+total+'</span>'
+        +logoH
+        +(sl.tag?'<div class="slide-tag">'+esc(sl.tag)+'</div>':'')
+        +'<div class="slide-title">'+col(sl.title||'')+'</div>'
+        +'<div class="slide-body">'+bodyH+'</div>'
+        +(isCTA?'<div class="slide-cta-wrap"><div class="slide-cta">'+esc(g('f_cta')||'Join us →')+'</div></div>':'')
+        +'</div>';
+    }).join('');
+    var dotsH=post.slides.map(function(sl,si){return'<div class="dot'+(si===0?' active':'')+'" onclick="gSlide('+pi+','+si+')" id="dot'+pi+'_'+si+'"></div>';}).join('');
+    carDiv.innerHTML='<div class="car-shell"><div class="slides">'+slidesH+'</div><div class="car-nav"><button class="nav-btn" onclick="pSlide('+pi+')" id="pvb'+pi+'" disabled>← Prev</button><div class="dots">'+dotsH+'</div><button class="nav-btn" onclick="nSlide('+pi+')" id="nxb'+pi+'">Next →</button></div></div>';
+    cars.appendChild(carDiv);
+
+    var capDiv=document.createElement('div');
+    capDiv.id='cap'+pi; capDiv.style.display=pi===0?'block':'none';
+    var cid='ct'+pi, hid='ht'+pi;
+    capDiv.innerHTML='<div class="cap-card"><div class="cap-lbl">Caption — '+esc(post.title||'')+'</div><div class="cap-txt" id="'+cid+'">'+esc(post.caption||'')+'</div><button class="copy-btn" onclick="copyEl(\''+cid+'\',this)">📋 Copy caption</button></div>'+(post.hashtags?'<div class="cap-card"><div class="cap-lbl">Hashtags</div><div class="cap-txt" id="'+hid+'">'+esc(post.hashtags)+'</div><button class="copy-btn" onclick="copyEl(\''+hid+'\',this)">📋 Copy hashtags</button></div>':'');
+    caps.appendChild(capDiv);
+  });
+  document.getElementById('results').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function swPin(idx) {
+  posts.forEach(function(p,i){
+    document.getElementById('car'+i).style.display=i===idx?'block':'none';
+    document.getElementById('cap'+i).style.display=i===idx?'block':'none';
+    document.getElementById('tb'+i).classList.toggle('active',i===idx);
+  });
+}
+
+function gSlide(pi,si) {
+  var pv=curSlide[pi];
+  document.getElementById('sl'+pi+'_'+pv).classList.remove('active');
+  document.getElementById('dot'+pi+'_'+pv).classList.remove('active');
+  document.getElementById('sl'+pi+'_'+si).classList.add('active');
+  document.getElementById('dot'+pi+'_'+si).classList.add('active');
+  curSlide[pi]=si;
+  document.getElementById('pvb'+pi).disabled=si===0;
+  document.getElementById('nxb'+pi).disabled=si===posts[pi].slides.length-1;
+}
+function nSlide(pi){ if(curSlide[pi]<posts[pi].slides.length-1) gSlide(pi,curSlide[pi]+1); }
+function pSlide(pi){ if(curSlide[pi]>0) gSlide(pi,curSlide[pi]-1); }
+
+function copyEl(id,btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(function(){
+    btn.textContent='✓ Copied!'; btn.classList.add('copied');
+    setTimeout(function(){ btn.textContent='📋 Copy'; btn.classList.remove('copied'); },2000);
+  });
+}
+function copyAll() {
+  var all=posts.map(function(p){ return '=== '+p.title+' ===\n\n'+(p.caption||'')+'\n\n'+(p.hashtags||''); }).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(function(){ alert('All captions copied to clipboard!'); });
+}
+function resetAll() {
+  posts=[]; curSlide=[0,0,0]; logoUrl=null;
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('panel3').style.display='block';
+  goStep(1);
+}
+</script>
+</body>
+</html>
